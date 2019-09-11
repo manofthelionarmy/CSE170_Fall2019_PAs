@@ -2,20 +2,26 @@
 
 # include <sig/gs_vec.h>
 # include <sig/sn_shape.h>
+# include <vector>
 
 class GsPolygon; // forward declaration
 class GsFontStyle; // forward declaration
 class UiLabel; // forward declaration
+
+
 
 class SnMyNode : public SnShape
 {  public :
 	GsVec init;
 	float width;
 	float height;
-	GsVec A00;
-	GsVec A01;
-	GsVec A10;
-	GsVec A11;
+	struct Face {
+		GsVec A00;
+		GsVec A01;
+		GsVec A10;
+		GsVec A11;
+	};
+	std::vector<Face> faces; 
 
    public :
 	static const char* class_name; //<! Contains string SnLines2

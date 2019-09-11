@@ -16,7 +16,7 @@ class MyViewer : public WsViewer
 	void add_mynode ( int n );
 	virtual int handle_keyboard ( const GsEvent &e ) override;
 	virtual int uievent ( int e ) override;
-	void torus_node(float r, float R, int n); 
+	void torus_node(float r, float R, int n, bool update=false); 
 	GsVec torus_function(int phi, int theta, float r, float R); 
-	void update_torus(float r, float R, int n); 
+	
 };

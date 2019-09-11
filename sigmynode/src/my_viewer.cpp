@@ -7,7 +7,7 @@
 # include <sigogl/ui_button.h>
 
 
-std::vector<SnMyNode*> nodes;
+SnMyNode* c = new SnMyNode(); 
 int numTriangles;
 float littleR;
 float bigR;
@@ -69,71 +69,50 @@ GsVec MyViewer::torus_function(int phi, int theta, float r, float R) {
 
 }
 
-void MyViewer::torus_node(float r, float R, int n) {
 
+void MyViewer::torus_node(float r, float R, int n, bool update) {
+
+	// SnMyNode* c = new SnMyNode();
+	
 	int prevPhi = 0; 
 	int prevTheta = 0; 
 
 	int nextPhi = 0;
 	int nextTheta = 0;
 
-	for (nextPhi = n; prevPhi <= 360; nextPhi += n) {
-		for (nextTheta = n; nextTheta <= 360; nextTheta += n) {
-
-			SnMyNode* c = new SnMyNode();
-
-			c->A00 = torus_function(prevPhi, prevTheta, r, R);
-			c->A10 = torus_function(nextPhi, prevTheta, r, R);
-			c->A01 = torus_function(prevPhi, nextTheta, r, R);
-			c->A11 = torus_function(nextPhi, nextTheta, r, R);
-
-			c->color(GsColor::random());
-
-			nodes.push_back(c); 
-
-			rootg()->add(c);
-
-			prevTheta = nextTheta;
-			
-		}
-
-		prevPhi = nextPhi;
-	}
-
-	return; 
-}
-
-void MyViewer::update_torus(float r, float R, int n) {
-
-	int prevPhi = 0;
-	int prevTheta = 0;
-
-	int nextPhi = 0;
-	int nextTheta = 0;
-
 	int i = 0; 
 
+	if (update) {
+		// clear all the faces and redraw
+		c->faces.clear(); 
+	}
+
 	for (nextPhi = n; prevPhi <= 360; nextPhi += n) {
 		for (nextTheta = n; nextTheta <= 360; nextTheta += n) {
 
-			SnMyNode* c = nodes.at(i++); 
+			SnMyNode::Face f;
 
-			c->A00 = torus_function(prevPhi, prevTheta, r, R);
-			c->A10 = torus_function(nextPhi, prevTheta, r, R);
-			c->A01 = torus_function(prevPhi, nextTheta, r, R);
-			c->A11 = torus_function(nextPhi, nextTheta, r, R);
+			f.A00 = torus_function(prevPhi, prevTheta, r, R);
+			f.A10 = torus_function(nextPhi, prevTheta, r, R);
+			f.A01 = torus_function(prevPhi, nextTheta, r, R);
+			f.A11 = torus_function(nextPhi, nextTheta, r, R);
 
-			
-			c->touch(); 
+
+			c->faces.push_back(f);
+			c->color(GsColor::blue);
+	
 
 			prevTheta = nextTheta;
-
+			
 		}
 
 		prevPhi = nextPhi;
 	}
 
-	return;
+	
+	update == true ? c->touch() : rootg()->add(c); 
+
+	return; 
 }
 
 int MyViewer::handle_keyboard ( const GsEvent &e )
@@ -145,22 +124,22 @@ int MyViewer::handle_keyboard ( const GsEvent &e )
 	{	case GsEvent::KeyEsc : gs_exit(); return 1;
 		case GsEvent::KeyLeft: gsout<<"Left\n"; return 1;
 
-		case 'q':
+		case 'a':
 		{
 			
 			++numTriangles; 
 
-			update_torus(littleR, bigR, numTriangles); 
+			torus_node(littleR, bigR, numTriangles, true); 
 
 			render();
 
 			return 1; 
 		}
-		case 'a': {
+		case 'q': {
 
 			numTriangles > 10 ? --numTriangles: numTriangles = 10;
 
-			update_torus(littleR, bigR, numTriangles); 
+			torus_node(littleR, bigR, numTriangles, true);
 
 			render();
 
@@ -171,7 +150,7 @@ int MyViewer::handle_keyboard ( const GsEvent &e )
 
 			littleR += 0.1f; 
 
-			update_torus(littleR, bigR, numTriangles);
+			torus_node(littleR, bigR, numTriangles, true);
 
 			render();
 
@@ -181,7 +160,7 @@ int MyViewer::handle_keyboard ( const GsEvent &e )
 			
 			littleR - 0.1f  >= 0.1f ? littleR -= 0.1f : littleR = 0.1f; 
 
-			update_torus(littleR, bigR, numTriangles);
+			torus_node(littleR, bigR, numTriangles, true);
 
 			render();
 
@@ -190,7 +169,7 @@ int MyViewer::handle_keyboard ( const GsEvent &e )
 		case 'e': {
 			bigR += 0.1f; 
 
-			update_torus(littleR, bigR, numTriangles); 
+			torus_node(littleR, bigR, numTriangles, true);
 
 			render();
 
@@ -200,7 +179,7 @@ int MyViewer::handle_keyboard ( const GsEvent &e )
 			
 			bigR - 0.1f >= 0.1f ? bigR -= 0.1f : bigR = 0.1f; 
 
-			update_torus(littleR, bigR, numTriangles);
+			torus_node(littleR, bigR, numTriangles, true);
 
 			render();
 

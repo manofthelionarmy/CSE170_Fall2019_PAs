@@ -65,7 +65,7 @@ void GlrMyNode::render ( SnShape* s, GlContext* ctx )
 		float h = c.height;
 		if ( w<=0 || h<=0 ) return; // invalid parameters
 
-		GsArray<GsVec> P(0,6); // will hold the points forming my triangles (size 0, but pre-allocate 6 spaces)
+		/*GsArray<GsVec> P(0,6); // will hold the points forming my triangles (size 0, but pre-allocate 6 spaces)
 		
 		P.push() = c.A00;
 		P.push() = c.A10;
@@ -73,7 +73,25 @@ void GlrMyNode::render ( SnShape* s, GlContext* ctx )
 
 		P.push() = c.A10;
 		P.push() = c.A11;
-		P.push() = c.A01;
+		P.push() = c.A01;*/
+
+		// Per face, there are 4 points but I want to push back 6 points. 
+		GsArray<GsVec> P(0, c.faces.size() * 6); 
+
+		int n = c.faces.size(); 
+
+		for (int i = 0; i < n; ++i) {
+
+			P.push() = c.faces[i].A00;
+			P.push() = c.faces[i].A10; 
+			P.push() = c.faces[i].A01; 
+
+			P.push() = c.faces[i].A10;
+			P.push() = c.faces[i].A11;
+			P.push() = c.faces[i].A01;
+		}
+
+		// Add the points appropriately with for loops
 
 		glBindVertexArray ( _glo.va[0] );
 		glEnableVertexAttribArray ( 0 );
