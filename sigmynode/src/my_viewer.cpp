@@ -7,12 +7,20 @@
 # include <sigogl/ui_button.h>
 # include <sig/gs_model.h>
 # include <sig/sn_model.h>
+# include <sig/sn_transform.h>
 
 
 SnMyNode* c = new SnMyNode(); 
 int numTriangles;
 float littleR;
 float bigR;
+
+
+GsVec lighting = GsVec(0.015f, 0.15f, 0.15f);
+GsMat shadowXY = GsMat(1.0f, 0.0f, -lighting.x / lighting.z, 0.0f,
+	0.0f, 1.0f, -lighting.y / lighting.z, 0.0f,
+	0.0f, 0.0f, 0.0f, 0.0f,
+	0.0f, 0.0f, 0.0f, 1.0f);
 
 
 MyViewer::MyViewer ( int x, int y, int w, int h, const char* l ) : WsViewer(x,y,w,h,l)
@@ -63,6 +71,10 @@ void MyViewer::draw_clock() {
 	// root
 	SnGroup* clock = new SnGroup;
 
+	SnGroup* shadow_clock = NULL; 
+
+	SnTransform* shadow_transform = new SnTransform();
+	
 	// 1st node
 	SnGroup* body = new SnGroup;
 
@@ -74,15 +86,31 @@ void MyViewer::draw_clock() {
 
 	//clock body
 	GsModel* c_b = new GsModel; 
-	c_b->make_cylinder(GsPnt(0, 0, 0), GsPnt(0, 1, 0), 0.2f, 0.2f, 25, true);
+	c_b->make_cylinder(GsPnt(0, 0, 0), GsPnt(0, 0, 0.1f), 0.2f, 0.2f, 25, true);
 
-	
-	body->separator(true); 
+	// set seperator to true
+	// body->separator(true); 
+
+	//
 	body->add(new SnModel(c_b));
+	body->top<SnModel>()->color(GsColor::blue);
+
+	shadow_clock = new SnGroup(clock);
+
+	shadow_transform->set(shadowXY);
+
+	// add transformation on the body
+	// body->add((SnNode*)(shadow_transform));
 
 	clock->add_group(body);
 
+	
+
+
+	shadow_clock->add((SnNode*)(shadow_transform)); 
+
 	rootg()->add_group(clock);
+	rootg()->add_group(shadow_clock); 
 	return; 
 }
 
