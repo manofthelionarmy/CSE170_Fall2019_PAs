@@ -5,6 +5,8 @@
 #include <vector>
 # include <sigogl/gl_tools.h>
 # include <sigogl/ui_button.h>
+# include <sig/gs_model.h>
+# include <sig/sn_model.h>
 
 
 SnMyNode* c = new SnMyNode(); 
@@ -25,7 +27,9 @@ MyViewer::MyViewer ( int x, int y, int w, int h, const char* l ) : WsViewer(x,y,
 	bigR = 0.5f;
 	numTriangles = 10;
 
-	torus_node(littleR, bigR, numTriangles); 
+	// torus_node(littleR, bigR, numTriangles); 
+
+	draw_clock();
 }
 
 void MyViewer::add_ui ()
@@ -53,6 +57,33 @@ void MyViewer::add_mynode ( int n )
 		// gsout<<n<<": "<<c->color()<<gsnl;
 		rootg()->add(c);
 	}
+}
+
+void MyViewer::draw_clock() {
+	// root
+	SnGroup* clock = new SnGroup;
+
+	// 1st node
+	SnGroup* body = new SnGroup;
+
+	// 2nd node
+	SnGroup* minute_hand = new SnGroup;
+
+	// 3rd node
+	SnGroup* hour_hand = new SnGroup;
+
+	//clock body
+	GsModel* c_b = new GsModel; 
+	c_b->make_cylinder(GsPnt(0, 0, 0), GsPnt(0, 1, 0), 0.2f, 0.2f, 25, true);
+
+	
+	body->separator(true); 
+	body->add(new SnModel(c_b));
+
+	clock->add_group(body);
+
+	rootg()->add_group(clock);
+	return; 
 }
 
 GsVec MyViewer::torus_function(int phi, int theta, float r, float R) {
