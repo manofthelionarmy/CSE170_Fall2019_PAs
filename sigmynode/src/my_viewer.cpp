@@ -23,6 +23,8 @@ GsMat shadowXY = GsMat(1.0f, 0.0f, -lighting.x / lighting.z, 0.0f,
 	0.0f, 0.0f, 0.0f, 1.0f);
 
 
+
+
 MyViewer::MyViewer ( int x, int y, int w, int h, const char* l ) : WsViewer(x,y,w,h,l)
 {
 	add_ui ();
@@ -67,13 +69,25 @@ void MyViewer::add_mynode ( int n )
 	}
 }
 
+GsMat MyViewer::roty(float alpha) {
+	float a = cosf(GS_TORAD(alpha));
+	float b = sinf(GS_TORAD(alpha)); 
+
+	return GsMat(
+		1.0f, 0.0f, 0.0f, 0.0f,
+		0.0f,    a,   -b, 0.0f,
+		0.0f,    b,    a, 0.0f,
+		0.0f, 0.0f, 0.0f, 1.0f
+	); 
+}
+
 void MyViewer::draw_clock() {
 	// root
 	SnGroup* clock = new SnGroup;
 
-	SnGroup* shadow_clock = NULL; 
-
+	//Transforms
 	SnTransform* shadow_transform = new SnTransform();
+	SnTransform* rotate = new SnTransform();
 	
 	// 1st node
 	SnGroup* body = new SnGroup;
@@ -86,31 +100,40 @@ void MyViewer::draw_clock() {
 
 	//clock body
 	GsModel* c_b = new GsModel; 
-	c_b->make_cylinder(GsPnt(0, 0, 0), GsPnt(0, 0, 0.1f), 0.2f, 0.2f, 25, true);
+	c_b->make_cylinder(GsPnt(0, 0, 0), GsPnt(0, 0, 0.1f), 0.3f, 0.3f, 25, true);
 
-	// set seperator to true
-	// body->separator(true); 
-
-	//
 	body->add(new SnModel(c_b));
 	body->top<SnModel>()->color(GsColor::blue);
 
-	shadow_clock = new SnGroup(clock);
+	GsModel* hh = new GsModel; 
+	hh->make_capsule(GsPnt(0.0f, 0.0f, 0.0f), GsPnt(0, 0.1f, 0), 0.03f, 0.03f, 25, true);
 
-	shadow_transform->set(shadowXY);
+	hour_hand->add(new SnModel(hh)); 
+	hour_hand->top<SnModel>()->color(GsColor::green); 
 
-	// add transformation on the body
-	// body->add((SnNode*)(shadow_transform));
+	hour_hand->separator(true);
 
-	clock->add_group(body);
+	shadow_transform->set(shadowXY); 
+	rotate->set(roty(90.0f)); 
 
+	GsModel* mh = new GsModel;
+	mh->make_capsule(GsPnt(0, 0, 0), GsPnt(0, 0.25f, 0), 0.03f, 0.03f, 25, true); 
+	minute_hand->add(new SnModel(mh));
+	minute_hand->top<SnModel>()->color(GsColor::red);
+
+	minute_hand->separator(true);
 	
-
-
-	shadow_clock->add((SnNode*)(shadow_transform)); 
+	// make sure the transform is added before the body!!
+	// think of it like a stack!! we want to pop off the GsModel first
+	// then apply the transformation
+	clock->add((SnNode*)(rotate)); 
+	clock->add((SnNode*)(shadow_transform));
+	clock->add_group(body);
+	clock->add_group(hour_hand); 
+	clock->add_group(minute_hand);
 
 	rootg()->add_group(clock);
-	rootg()->add_group(shadow_clock); 
+
 	return; 
 }
 

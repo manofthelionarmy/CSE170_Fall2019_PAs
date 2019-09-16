@@ -15,6 +15,7 @@ class MyViewer : public WsViewer
 	void add_ui ();
 	void add_mynode ( int n );
 	void draw_clock();
+	GsMat roty(float alpha); 
 	virtual int handle_keyboard ( const GsEvent &e ) override;
 	virtual int uievent ( int e ) override;
 	void torus_node(float r, float R, int n, bool update=false); 
